@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="Shift_JIS"?>
+<project name="DataSpiderServistaAdapter SDK" default="jar" basedir=".">
+  <taskdef file="../ant_custom.properties" classpath="../ant_custom.jar" />
+  <import file="../build.xml"/>
+
+  <!-- init -->
+  <target name="init.basename">
+    <basename property="module" file="${basedir}"/>
+  </target>
+
+</project>

@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="Shift_JIS"?>
+<project name="DataSpiderServistaComponent SDK" default="jar" basedir=".">
+
+  <property name="Specification-Title" value="plugin modules" />
+  <property name="Specification-Version" value="2.1" />
+  <property name="Specification-Vendor" value="APPRESSO K.K." />
+  <property name="build.sysclasspath" value="ignore"/>
+
+  <!-- ================================================================================== -->
+
+  <!-- init base name -->
+  <target name="init.basename"></target>
+			
+  <!-- init -->
+  <target name="init" depends="init.basename">
+  	<property file="../build.properties"/>
+    <property file="../dev.properties"/>
+    <property file="./config.properties"/>
+
+  	<echo message="dataspider.home: ${dataspider.home}" />
+    <echo message="Implementation-Title: ${Implementation-Title}" />
+    <echo message="display.name: ${display.name}" />
+    <echo message="module.category: ${module.category}" />
+    <echo message="module.label: ${module.label}" />
+    <echo message="basedir: ${basedir}" />
+    <echo message="module: ${module}" />
+
+    <antcall target="assert"/>
+    
+    <property name="dir.src" value="src"/>
+    <property name="dir.meta-inf" value="META-INF"/>
+    <property name="dir.build" value="build"/>
+    
+    <property name="build.jar" value="${dir.build}/${module}.jar"/>
+    
+    <property name="build.dir.src" value="${dir.build}/src"/>
+    <property name="build.dir.classes" value="${dir.build}/classes"/>
+    
+    <property name="dataspider.dir.server" value="${dataspider.home}/server"/>
+    <property name="dataspider.dir.modules" value="${dataspider.dir.server}/plugin/data_processing/modules"/>
+    <property name="dataspider.dir.share.lib" value="${dataspider.dir.server}/plugin/data_processing/share/lib"/>
+    <property name="dataspider.dir.common.lib" value="${dataspider.dir.server}/system/common/lib"/>
+  </target>
+
+  <!-- assert -->
+  <target name="assert">
+    <fail unless="module">
+      Property:module must be specified.
+      Usage: ant -Dmodule=module.name
+    </fail>
+    <fail unless="dataspider.home">
+      Property:dataspider.home must be set.
+      Please make sure build.properties is correctly configured.
+    </fail>
+    <fail unless="display.name">
+      Property: display.name must be set.
+      Please make sure config.properties is correctly configured.
+      In a properties file, a line that starts with '#' is regarted as a comment line.
+    </fail>
+    <fail unless="module.category">
+      Property: module.category must be set.
+      Please make sure config.properties is correctly configured.
+      In a properties file, a line that starts with '#' is regarted as a comment line.
+    </fail>
+    <fail unless="module.label">
+      Property: module.label must be set.
+      Please make sure config.properties is correctly configured.
+      In a properties file, a line that starts with '#' is regarted as a comment line.
+    </fail>
+  </target>
+
+  <!-- prepare -->
+  <target name="prepare" depends="init">
+    <mkdir dir="${dir.build}"/>
+    <mkdir dir="${dir.meta-inf}"/>
+
+  	<condition property="exist.module.props">
+  		<available file="${dir.meta-inf}/module.properties" />
+  	</condition>
+
+  	<antcall target="touch.module.props" />
+
+  	<copy todir="${build.dir.src}">
+      <fileset dir="${dir.src}">
+        <exclude name="**/*"/>
+      </fileset>
+    </copy>
+  	<copy todir="${build.dir.classes}">
+      <fileset dir="${dir.src}">
+        <exclude name="**/*.java"/>
+      </fileset>
+    </copy>
+  </target>
+	
+  <!-- touch.module.props -->
+  <target name="touch.module.props" unless="exist.module.props">
+  	<touch file="${dir.meta-inf}/module.properties" />
+  </target>
+
+  <!-- native2ascii_default -->
+  <target name="native2ascii_default" unless="encoding" depends="prepare">
+    <echo>encoding:        DEFAULT</echo>
+    <native2ascii
+      dest="${build.dir.src}"
+      src="${dir.src}"
+      includes="**/*.java"
+      />
+      <native2ascii
+       dest="${build.dir.classes}"
+       src="${dir.src}"
+       includes="**/*_ja.properties"
+      />
+  </target>
+  
+  <!-- native2ascii -->
+  <target name="native2ascii" if="encoding" depends="native2ascii_default">
+    <echo>encoding:        ${encoding}</echo>
+    <native2ascii
+      dest="${build.dir.src}"
+      encoding="${encoding}"
+      src="${dir.src}"
+      includes="**/*.java"
+      />
+      <native2ascii
+       dest="${build.dir.classes}"
+       encoding="${encoding}"
+       src="${dir.src}"
+       includes="**/*_ja.properties"
+      />
+  </target>
+  
+  <!-- compile -->
+  <target name="compile" depends="native2ascii">
+    <javac
+      srcdir="${build.dir.src}"
+      includes="**/*.java"
+      destdir="${build.dir.classes}" 
+      deprecation="on">
+      <classpath>
+        <fileset dir="${dataspider.dir.common.lib}">
+          <include name="*.jar" />
+          <include name="*.zip"/>
+        </fileset>
+        <fileset dir="${dataspider.dir.share.lib}">
+          <include name="*.jar" />
+          <include name="*.zip"/>
+        </fileset>
+        <fileset dir=".">
+          <include name="*.jar" />
+          <include name="*.zip"/>
+        </fileset>
+      </classpath>
+    </javac>
+  </target>
+
+  <!-- jar -->
+  <target name="jar" depends="compile">
+    <tstamp>
+      <format property="Implementation-Version" pattern="yyyyMMddHHmm"/>
+    </tstamp>
+    <jar jarfile="${build.jar}">
+      <fileset dir="${build.dir.classes}">
+        <include name="**/*"/>
+      </fileset>
+      <manifest>
+        <attribute name="Built-By" value="${user.name}"/>
+        <attribute name="Created-By" value="${user.name}"/>
+        <attribute name="Specification-Title" value="${Specification-Title}" />
+        <attribute name="Specification-Version" value="${Specification-Version}" />
+        <attribute name="Specification-Vendor" value="${Specification-Vendor}" />
+        <attribute name="Implementation-Title" value="${module}" />
+        <attribute name="Implementation-Version" value="${Implementation-Version}" />
+        <attribute name="Implementation-Vendor" value="${Implementation-Vendor}" />
+      </manifest>
+    </jar>
+  	<antcall target="update.modules.props" />
+  </target>
+
+  <!-- generate.module.component.name -->
+  <target name="update.modules.props">
+  	<pathconvert property="module.component.path" dirsep=".">
+  		<path>
+  			<fileset dir="${build.dir.classes}">
+  				<include name="**/*ModuleComponent.class"/>
+  			</fileset>
+  		</path>
+  	</pathconvert>
+  	
+  	<antcall target="execute.custom" />
+  </target>
+			
+  <!-- generate.module.component.name -->
+  <target name="execute.custom">
+
+  	<fail unless="module.component.path">
+      Usage: AdapterModuleComponent must be created.
+    </fail>
+
+  	<updateproperty
+  		key="component.class"
+  		value="${module.component.path}"
+		file="${basedir}/${dir.meta-inf}/module.properties"
+		moduleName="${module}"
+  		overwrite="true"/>
+  	<updateproperty
+  		key="display.name"
+  		value="${display.name}"
+		file="${basedir}/${dir.meta-inf}/module.properties"
+		moduleName="${module}"
+  		overwrite="true"/>
+  	<updateproperty
+  		key="module.category"
+  		value="${module.category}"
+		file="${basedir}/${dir.meta-inf}/module.properties"
+		moduleName="${module}"
+  		overwrite="true"/>
+  	<updateproperty
+  		key="module.label"
+  		value="${module.label}"
+		file="${basedir}/${dir.meta-inf}/module.properties"
+		moduleName="${module}"
+  		overwrite="true"/>
+  </target>
+
+  <!-- install -->
+  <target name="install" depends="jar">
+    <property name="dir.target" value="${dataspider.dir.modules}/${module}"/>
+    <mkdir dir="${dir.target}"/>
+    <mkdir dir="${dir.target}/META-INF"/>
+    <copy file="${build.jar}" todir="${dir.target}" />
+    <copy todir="${dir.target}/META-INF">
+      <fileset dir="${dir.meta-inf}">
+        <include name="*.icon"/>
+        <include name="*.properties"/>
+      </fileset>
+    </copy>
+  	<!-- ライブラリのコピー -->
+    <copy todir="${dir.target}">
+      <fileset dir=".">
+        <include name="*.jar"/>
+        <include name="*.zip"/>
+      </fileset>
+    </copy>
+  </target>
+
+  <!-- uninstall -->
+  <target name="uninstall" depends="init">
+    <delete dir="${dataspider.dir.modules}/${module}"/>
+  </target>
+
+  <!-- clean -->
+  <target name="clean" depends="init">
+    <delete dir="${build.dir.classes}"/>
+    <delete file="${build.jar}"/>
+  </target>
+
+  <!-- distclean -->
+  <target name="distclean" depends="clean">
+    <delete dir="${dir.build}"/>
+  </target>
+
+</project>
+

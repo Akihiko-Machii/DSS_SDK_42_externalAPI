@@ -1,0 +1,16 @@
+com.appresso.ds.common.dp
+com.appresso.ds.common.dp.action
+com.appresso.ds.common.fw
+com.appresso.ds.common.fw.var
+com.appresso.ds.common.io
+com.appresso.ds.common.kernel.modules
+com.appresso.ds.common.locale
+com.appresso.ds.common.spi.constraint
+com.appresso.ds.common.spi.param
+com.appresso.ds.common.xmlfw
+com.appresso.ds.common.xmlfw.table
+com.appresso.ds.common.xmlfw.xml
+com.appresso.ds.dp.share.adapter.common
+com.appresso.ds.dp.share.adapter.file
+com.appresso.ds.dp.spi
+com.appresso.ds.xmlfw
