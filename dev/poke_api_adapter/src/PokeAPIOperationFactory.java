@@ -7,7 +7,7 @@ import com.appresso.ds.dp.spi.OperationContext;
 import com.appresso.ds.dp.spi.OperationIO;
 import com.appresso.ds.common.spi.constraint.Fillin;
 import com.appresso.ds.common.spi.constraint.NumberFillin;
-import com.appresso.ds.dp.spi.parameter.SimpleParameter;
+import com.appresso.ds.common.spi.param.SimpleParameter;
 
 public class PokeAPIOperationFactory extends GetDataOperationFactory {
     static final String KEY_URL = "URL";
