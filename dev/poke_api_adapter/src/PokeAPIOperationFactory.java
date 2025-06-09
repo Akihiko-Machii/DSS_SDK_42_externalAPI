@@ -25,7 +25,7 @@ public class PokeAPIOperationFactory extends GetDataOperationFactory {
         NumberFillin number = new NumberFillin();
         number.setLabel("タイムアウト(ms)");
         number.setRequired(true);
-        number.setDefaultValue("30000"); // デフォルト30秒
+        number.setInitialValue("30000"); // デフォルト30秒
         number.setDescription("リクエストのタイムアウト時間（ミリ秒）");
         return new SimpleParameter(KEY_TIMEOUT, number);
     }
