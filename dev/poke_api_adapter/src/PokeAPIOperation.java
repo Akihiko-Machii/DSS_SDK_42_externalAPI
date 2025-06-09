@@ -32,16 +32,33 @@ public class PokeAPIOperation implements Operation {
     String url = conf.getValue(KEY_URL).toString();
     Integer timeout = Integer.parseInt(conf.getValue(KEY_TIMEOUT).toString());
     LoggingContext log = context.log();
+
+    log.info("=== PokeAPI デバッグ開始 ===");
+    log.info("設定URL: [" + url + "]");
+    log.info("設定タイムアウト: " + timeout + "ms");
+
     HttpURLConnection connection = null;
     try {
+      log.info("URL作成開始...");
       URL apiUrl = new URL(url);
+      log.info("URL作成成功: " + apiUrl.toString());
+
+      log.info("コネクション作成開始...");
       connection = (HttpURLConnection) apiUrl.openConnection();
+      log.info("コネクション作成成功");
+
       connection.setRequestMethod("GET");
       connection.setConnectTimeout(timeout);
       connection.setReadTimeout(timeout);
       connection.setRequestProperty("Accept", "application/json");
+
+      log.info("接続開始...");
       connection.connect();
+      log.info("接続成功！");
+
       int responseCode = connection.getResponseCode();
+      log.info("レスポンスコード取得: " + responseCode);
+
       InputStream inputStream = (responseCode < 400) ? connection.getInputStream() : connection.getErrorStream();
       String responseBody = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))
           .lines().collect(Collectors.joining("\n"));
