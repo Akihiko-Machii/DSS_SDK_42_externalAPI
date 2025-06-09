@@ -5,8 +5,8 @@ import com.appresso.ds.dp.spi.OperationConfiguration;
 import com.appresso.ds.dp.spi.OperationConfigurator;
 import com.appresso.ds.dp.spi.OperationContext;
 import com.appresso.ds.dp.spi.OperationIO;
-import com.appresso.ds.dp.spi.constraint.Fillin;
-import com.appresso.ds.dp.spi.constraint.NumberFillin;
+import com.appresso.ds.common.spi.constraint.Fillin;
+import com.appresso.ds.common.spi.constraint.NumberFillin;
 import com.appresso.ds.dp.spi.parameter.SimpleParameter;
 
 public class PokeAPIOperationFactory extends GetDataOperationFactory {
