@@ -33,6 +33,12 @@ public class PokeAPIOperation implements Operation {
     Integer timeout = Integer.parseInt(conf.getValue(KEY_TIMEOUT).toString());
     LoggingContext log = context.log();
 
+    log.info("=== プロキシ設定確認 ===");
+    log.info("http.proxyHost: " + System.getProperty("http.proxyHost", "未設定"));
+    log.info("http.proxyPort: " + System.getProperty("http.proxyPort", "未設定"));
+    log.info("https.proxyHost: " + System.getProperty("https.proxyHost", "未設定"));
+    log.info("https.proxyPort: " + System.getProperty("https.proxyPort", "未設定"));
+
     log.info("=== PokeAPI デバッグ開始 ===");
     log.info("設定URL: [" + url + "]");
     log.info("設定タイムアウト: " + timeout + "ms");
