@@ -32,16 +32,39 @@ public class PokeAPIOperation implements Operation {
     String url = conf.getValue(KEY_URL).toString();
     Integer timeout = Integer.parseInt(conf.getValue(KEY_TIMEOUT).toString());
     LoggingContext log = context.log();
+
+    log.info("=== \u30d7\u30ed\u30ad\u30b7\u8a2d\u5b9a\u78ba\u8a8d ===");
+    log.info("http.proxyHost: " + System.getProperty("http.proxyHost", "\u672a\u8a2d\u5b9a"));
+    log.info("http.proxyPort: " + System.getProperty("http.proxyPort", "\u672a\u8a2d\u5b9a"));
+    log.info("https.proxyHost: " + System.getProperty("https.proxyHost", "\u672a\u8a2d\u5b9a"));
+    log.info("https.proxyPort: " + System.getProperty("https.proxyPort", "\u672a\u8a2d\u5b9a"));
+
+    log.info("=== PokeAPI \u30c7\u30d0\u30c3\u30b0\u958b\u59cb ===");
+    log.info("\u8a2d\u5b9aURL: [" + url + "]");
+    log.info("\u8a2d\u5b9a\u30bf\u30a4\u30e0\u30a2\u30a6\u30c8: " + timeout + "ms");
+
     HttpURLConnection connection = null;
     try {
+      log.info("URL\u4f5c\u6210\u958b\u59cb...");
       URL apiUrl = new URL(url);
+      log.info("URL\u4f5c\u6210\u6210\u529f: " + apiUrl.toString());
+
+      log.info("\u30b3\u30cd\u30af\u30b7\u30e7\u30f3\u4f5c\u6210\u958b\u59cb...");
       connection = (HttpURLConnection) apiUrl.openConnection();
+      log.info("\u30b3\u30cd\u30af\u30b7\u30e7\u30f3\u4f5c\u6210\u6210\u529f");
+
       connection.setRequestMethod("GET");
       connection.setConnectTimeout(timeout);
       connection.setReadTimeout(timeout);
       connection.setRequestProperty("Accept", "application/json");
+
+      log.info("\u63a5\u7d9a\u958b\u59cb...");
       connection.connect();
+      log.info("\u63a5\u7d9a\u6210\u529f\uff01");
+
       int responseCode = connection.getResponseCode();
+      log.info("\u30ec\u30b9\u30dd\u30f3\u30b9\u30b3\u30fc\u30c9\u53d6\u5f97: " + responseCode);
+
       InputStream inputStream = (responseCode < 400) ? connection.getInputStream() : connection.getErrorStream();
       String responseBody = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))
           .lines().collect(Collectors.joining("\n"));
