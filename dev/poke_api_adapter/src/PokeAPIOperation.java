@@ -168,11 +168,25 @@ public class PokeAPIOperation implements Operation {
       // XML形式に変換
       String xmlData = convertToXml(name, id, height, weight);
 
+      // XMLデータの確認ログを追加
+      log.info("=== XML出力データ確認 ===");
+      log.info("生成XMLデータ:\n" + xmlData);
+      log.info("XMLデータサイズ: " + xmlData.length() + " bytes");
+      log.info("出力キー: " + PokeAPIOperationFactory.KEY_JSON_OUTPUT);
+      log.info("========================");
+
       // CSVファイルに出力
       outputToCsv(xmlData, log);
 
       Map<String, Object> result = new HashMap<>();
       result.put(PokeAPIOperationFactory.KEY_JSON_OUTPUT, xmlData);
+
+      // 戻り値確認ログも追加
+      log.info("=== 戻り値確認 ===");
+      log.info("result.size(): " + result.size());
+      log.info("結果Mapキー一覧: " + result.keySet());
+      log.info("================");
+
       return result;
     } catch (Exception e) {
       log.error("HTTP GETリクエスト中にエラーが発生しました: " + e.getMessage(), e);
