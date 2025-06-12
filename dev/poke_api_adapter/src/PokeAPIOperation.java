@@ -16,8 +16,6 @@ import com.appresso.ds.dp.spi.Operation;
 import com.appresso.ds.dp.spi.OperationContext;
 import com.appresso.ds.dp.spi.OperationConfiguration;
 
-import org.json.JSONObject;
-
 public class PokeAPIOperation implements Operation {
   public final OperationContext context;
   public final OperationConfiguration conf;
