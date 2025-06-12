@@ -8,10 +8,12 @@ import com.appresso.ds.dp.spi.OperationIO;
 import com.appresso.ds.common.spi.constraint.Fillin;
 import com.appresso.ds.common.spi.constraint.NumberFillin;
 import com.appresso.ds.common.spi.param.SimpleParameter;
+import com.appresso.ds.common.spi.constraint.StringOutput;
 
 public class PokeAPIOperationFactory extends GetDataOperationFactory {
     static final String KEY_URL = "URL";
     static final String KEY_TIMEOUT = "TIMEOUT";
+    static final String KEY_JSON_OUTPUT = "JSON_OUTPUT";
 
     private SimpleParameter createUrlParam() {
         Fillin url = new Fillin();
@@ -43,7 +45,12 @@ public class PokeAPIOperationFactory extends GetDataOperationFactory {
 
     @Override
     public OperationIO createOperationIO(OperationConfiguration conf, OperationContext context) throws Exception {
-        return null;
+        OperationIO io = new OperationIO();
+
+        StringOutput jsonOutput = new StringOutput(KEY_JSON_OUTPUT);
+        io.addOutput(jsonOutput);
+
+        return io;
     }
 
     @Override

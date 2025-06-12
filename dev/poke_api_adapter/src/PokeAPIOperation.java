@@ -11,9 +11,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.appresso.ds.common.fw.LoggingContext;
+import com.appresso.ds.dp.modules.adapter.pokeapi.PokeAPIOperationFactory;
 import com.appresso.ds.dp.spi.Operation;
 import com.appresso.ds.dp.spi.OperationContext;
 import com.appresso.ds.dp.spi.OperationConfiguration;
+
+import org.json.JSONObject;
 
 public class PokeAPIOperation implements Operation {
   public final OperationContext context;
@@ -25,6 +28,89 @@ public class PokeAPIOperation implements Operation {
   public PokeAPIOperation(OperationConfiguration conf, OperationContext context) {
     this.conf = conf;
     this.context = context;
+  }
+
+  // JSON文字列から値を抽出するヘルパーメソッド
+  private String extractJsonValue(String json, String key) {
+    String searchKey = "\"" + key + "\":";
+    int startIndex = json.indexOf(searchKey);
+    if (startIndex == -1)
+      return "";
+
+    startIndex += searchKey.length();
+    // 値の開始位置を見つける（空白やタブをスキップ）
+    while (startIndex < json.length() && Character.isWhitespace(json.charAt(startIndex))) {
+      startIndex++;
+    }
+
+    int endIndex;
+    if (json.charAt(startIndex) == '"') {
+      // 文字列値の場合
+      startIndex++; // 開始の"をスキップ
+      endIndex = json.indexOf('"', startIndex);
+    } else {
+      // 数値の場合
+      endIndex = startIndex;
+      while (endIndex < json.length() &&
+          (Character.isDigit(json.charAt(endIndex)) || json.charAt(endIndex) == '.')) {
+        endIndex++;
+      }
+    }
+
+    return endIndex > startIndex ? json.substring(startIndex, endIndex) : "";
+  }
+
+  // XML形式に変換
+  private String convertToXml(String name, String id, String height, String weight) {
+    StringBuilder xml = new StringBuilder();
+    xml.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+    xml.append("<pokemon>\n");
+    xml.append("  <name>").append(name).append("</name>\n");
+    xml.append("  <id>").append(id).append("</id>\n");
+    xml.append("  <height>").append(height).append("</height>\n");
+    xml.append("  <weight>").append(weight).append("</weight>\n");
+    xml.append("</pokemon>");
+    return xml.toString();
+  }
+
+  // CSVファイル出力
+  private void outputToCsv(String xmlData, LoggingContext log) {
+    try {
+      // ファイル名は現在時刻入りで一意にする
+      String fileName = "pokemon_data_" + System.currentTimeMillis() + ".csv";
+      java.io.FileWriter writer = new java.io.FileWriter(fileName, StandardCharsets.UTF_8);
+
+      // CSVヘッダー
+      writer.write("name,id,height,weight\n");
+
+      // XMLから値を抽出してCSV行として出力
+      String name = extractXmlValue(xmlData, "name");
+      String id = extractXmlValue(xmlData, "id");
+      String height = extractXmlValue(xmlData, "height");
+      String weight = extractXmlValue(xmlData, "weight");
+
+      writer.write(String.format("%s,%s,%s,%s\n", name, id, height, weight));
+      writer.close();
+
+      log.info("CSVファイル出力完了: " + fileName);
+    } catch (Exception e) {
+      log.error("CSVファイル出力エラー: " + e.getMessage(), e);
+    }
+  }
+
+  // XMLから値を抽出
+  private String extractXmlValue(String xml, String tagName) {
+    String startTag = "<" + tagName + ">";
+    String endTag = "</" + tagName + ">";
+
+    int startIndex = xml.indexOf(startTag);
+    if (startIndex == -1)
+      return "";
+
+    startIndex += startTag.length();
+    int endIndex = xml.indexOf(endTag, startIndex);
+
+    return endIndex > startIndex ? xml.substring(startIndex, endIndex) : "";
   }
 
   @Override
@@ -70,9 +156,20 @@ public class PokeAPIOperation implements Operation {
           .lines().collect(Collectors.joining("\n"));
       log.info("HTTP GET実行:" + url + "ステータス: " + responseCode);
 
+      // JSON文字列から必要項目を抽出（文字列操作）
+      String name = extractJsonValue(responseBody, "name");
+      String id = extractJsonValue(responseBody, "id");
+      String height = extractJsonValue(responseBody, "height");
+      String weight = extractJsonValue(responseBody, "weight");
+
+      // XML形式に変換
+      String xmlData = convertToXml(name, id, height, weight);
+
+      // CSVファイルに出力
+      outputToCsv(xmlData, log);
+
       Map<String, Object> result = new HashMap<>();
-      result.put("status", responseCode);
-      result.put("body", responseBody);
+      result.put(PokeAPIOperationFactory.KEY_JSON_OUTPUT, xmlData);
       return result;
     } catch (Exception e) {
       log.error("HTTP GETリクエスト中にエラーが発生しました: " + e.getMessage(), e);
