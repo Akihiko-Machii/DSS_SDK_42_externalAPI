@@ -1,6 +1,8 @@
 package com.appresso.ds.dp.modules.adapter.pokeapi;
 
 import java.io.BufferedReader;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -76,7 +78,8 @@ public class PokeAPIOperation implements Operation {
     try {
       // ファイル名は現在時刻入りで一意にする
       String fileName = "pokemon_data_" + System.currentTimeMillis() + ".csv";
-      java.io.FileWriter writer = new java.io.FileWriter(fileName, StandardCharsets.UTF_8);
+      java.io.FileOutputStream fos = new java.io.FileOutputStream(fileName);
+      java.io.OutputStreamWriter writer = new java.io.OutputStreamWriter(fos, StandardCharsets.UTF_8);
 
       // CSVヘッダー
       writer.write("name,id,height,weight\n");
