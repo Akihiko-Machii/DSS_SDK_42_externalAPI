@@ -7,6 +7,7 @@ import com.appresso.ds.dp.spi.OperationContext;
 import com.appresso.ds.dp.spi.OperationIO;
 import com.appresso.ds.common.spi.constraint.Fillin;
 import com.appresso.ds.common.spi.constraint.NumberFillin;
+import com.appresso.ds.common.spi.constraint.XMLOutput
 import com.appresso.ds.common.spi.param.SimpleParameter;
 import com.appresso.ds.common.spi.constraint.StringOutput;
 
@@ -47,8 +48,9 @@ public class PokeAPIOperationFactory extends GetDataOperationFactory {
     public OperationIO createOperationIO(OperationConfiguration conf, OperationContext context) throws Exception {
         OperationIO io = new OperationIO();
 
-        StringOutput jsonOutput = new StringOutput(KEY_JSON_OUTPUT);
-        io.addOutput(jsonOutput);
+        XMLOutput output = new XMLOutput(KEY_JSON_OUTPUT);
+        output.setDescription("取得したポケモン情報のXMLデータ");
+        io.addOutput(output);
 
         return io;
     }
