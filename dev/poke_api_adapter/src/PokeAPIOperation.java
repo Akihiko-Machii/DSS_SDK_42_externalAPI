@@ -78,6 +78,7 @@ public class PokeAPIOperation implements Operation {
     try {
       // ファイル名は現在時刻入りで一意にする
       String fileName = "pokemon_data_" + System.currentTimeMillis() + ".csv";
+      java.io.File file = new java.io.File(fileName);
       java.io.FileOutputStream fos = new java.io.FileOutputStream(fileName);
       java.io.OutputStreamWriter writer = new java.io.OutputStreamWriter(fos, StandardCharsets.UTF_8);
 
@@ -93,7 +94,8 @@ public class PokeAPIOperation implements Operation {
       writer.write(String.format("%s,%s,%s,%s\n", name, id, height, weight));
       writer.close();
 
-      log.info("CSVファイル出力完了: " + fileName);
+      // 絶対パスをログに出力
+      log.info("CSVファイル出力完了: " + file.getAbsolutePath());
     } catch (Exception e) {
       log.error("CSVファイル出力エラー: " + e.getMessage(), e);
     }
