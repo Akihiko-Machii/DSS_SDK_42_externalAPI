@@ -17,6 +17,8 @@ import com.appresso.ds.dp.modules.adapter.pokeapi.PokeAPIOperationFactory;
 import com.appresso.ds.dp.spi.Operation;
 import com.appresso.ds.dp.spi.OperationContext;
 import com.appresso.ds.dp.spi.OperationConfiguration;
+import com.appresso.ds.common.xmlfw.xml.XmlBuilder;
+import com.appresso.ds.xmlfw.DataBuilderFactory;
 
 public class PokeAPIOperation implements Operation {
   public final OperationContext context;
@@ -179,7 +181,34 @@ public class PokeAPIOperation implements Operation {
       outputToCsv(xmlData, log);
 
       Map<String, Object> result = new HashMap<>();
-      result.put(PokeAPIOperationFactory.KEY_JSON_OUTPUT, xmlData);
+
+      // XmlBuilder の生成
+      XmlBuilder builder = DataBuilderFactory.newMemoryXmlBuilder();
+
+      // XML構造を構築
+      builder.startDocument();
+      builder.startElement("pokemon");
+
+      builder.startElement("name");
+      builder.cdata(name);
+      builder.endElement("name");
+
+      builder.startElement("id");
+      builder.cdata(id);
+      builder.endElement("id");
+
+      builder.startElement("height");
+      builder.cdata(height);
+      builder.endElement("height");
+
+      builder.startElement("weight");
+      builder.cdata(weight);
+      builder.endElement("weight");
+
+      builder.endElement("pokemon");
+      builder.endDocument();
+
+      result.put(PokeAPIOperationFactory.KEY_JSON_OUTPUT, builder.getResult());
 
       // 戻り値確認ログも追加
       log.info("=== 戻り値確認 ===");
